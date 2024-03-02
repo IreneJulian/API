@@ -1,0 +1,31 @@
+from flask import Flask, jsonify, request
+
+app = Flask(__name__)
+
+users = []
+
+@app.route('/api/users', methods=['GET'])
+def get_users():
+    return jsonify(users)
+
+@app.route('/api/users', methods=['POST'])
+def create_user():
+    new_user = request.json
+    users.append(new_user)
+    return jsonify(new_user), 201
+
+@app.route('/api/users/<int:user_id>', methods=['GET'])
+def get_user(user_id):
+    for user in users:
+        if user.get('id') == user_id:
+            return jsonify(user)
+    return jsonify({'message': 'User not found'}), 404
+
+@app.route('/api/users/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    global users
+    users = [user for user in users if user.get('id') != user_id]
+    return jsonify({'message': 'User deleted successfully'})
+
+if __name__ == '__main__':
+    app.run(debug=True)
